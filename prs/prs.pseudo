@@ -1,0 +1,4 @@
+1) Display a message, and get user input. user should be able to select only paper, rock or scissors
+2) loop until user wishes to exit
+3) Computer makes a random choice
+4) Compare users choice to computer choice and based on rules display the winner
