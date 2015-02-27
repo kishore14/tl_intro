@@ -17,12 +17,12 @@ def get_valid_input
     input=gets.chomp
     is_valid =  Float(input) rescue false
    # binding.pry
-    if is_valid==false
+    if !is_valid
       puts "Invalid input! Please enter a decimal number!!"
     else
       return input
     end
-  end while is_valid==false
+  end while !is_valid
 end 
 
 def is_number?
@@ -39,7 +39,7 @@ begin # Main logic
     if is_valid == false
       puts "Invalid Selection! Please choose options 1 through 4 only !!"
     end
- end while is_valid ==false
+ end while !is_valid
   
   case selection 
     when '1' # ADD
