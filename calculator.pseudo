@@ -1,0 +1,4 @@
+1) Present a menu of options
+2) based on the option, perform corresponding math operation
+3) return the result and present the menu again
+4) exit the program upon entering N
