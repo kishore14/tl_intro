@@ -1,0 +1,6 @@
+1) show tic-tac-toe board to user and ask for a selection.
+2) Make a selection of empty cells in board only.
+3) check to see if there is a winner or if spaces in the board run out.
+4) Exit when there is a winner or no spaces are empty
+
+AI
