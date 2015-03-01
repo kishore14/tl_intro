@@ -4,6 +4,8 @@
 #board = {1 =>'1', 2 => '2', 3 => '3', 4 => '4', 5 => '5', 6 => '6', 7 => '7', 8 => '8', 9 => '9'}
 
 require 'pry'
+WINNING_LINES = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9,], [3,5,7]]
+
 def initialize_board
   b = {}
   (1..9).each  {|position| b[position]= position}
@@ -46,8 +48,8 @@ def get_computer_selection(b)
 end
 
 def winner?(b)
-  winning_lines = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9,], [3,5,7]]
-  winning_lines.each do |line|
+  
+  WINNING_LINES.each do |line|
     if b[line[0]] == 'X' && b[line[1]] == 'X' && b[line[2]] == 'X'
       return 'Player'
     elsif  b[line[0]] == 'O' && b[line[1]] == 'O' && b[line[2]] == 'O'
