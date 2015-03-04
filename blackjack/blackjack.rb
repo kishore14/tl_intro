@@ -2,25 +2,25 @@
 #This is my second attempt at this. This doesnt have multideck and bet amount features.
 
 require 'pry'
-cards = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'] #Actual cards
-suites = ['S', 'C', 'D', 'H'] 
-#Hash used to display names of suites instead of first letter
-suite_names = {'S'=> 'Spades', 'C' => 'Clubs', 'D' => 'Diamonds', 'H' => 'Hearts'}
+CARDS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'] #Actual cards
+SUITES = ['S', 'C', 'D', 'H'] 
+#Hash used to display names of SUITES instead of first letter
+SUITE_NAMES = {'S'=> 'Spades', 'C' => 'Clubs', 'D' => 'Diamonds', 'H' => 'Hearts'}
 #Hash used to display names of cards instead of first letter
-card_names = {
+CARD_NAMES = {
   'A' => 'Ace', '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' =>7, '8' => 8, '9' => 9,
   '10' => 10, 'J' => 'Jack', 'Q' => 'Queen', 'K' => 'King'  
   }
 
 # Method to create a deck with specfied number of card sets.
-def create_deck(number, cards, suites)
+def create_deck(number)
   deck = []
   deck_cards = []
   number.times do
-    deck_cards << cards
+    deck_cards << CARDS
   end
   deck_cards.flatten!
-  deck = deck_cards.product(suites)
+  deck = deck_cards.product(SUITES)
 end
 
 #Method to create a card
@@ -39,9 +39,9 @@ def create_hand(deck)
 end
 
 # Method to display the hand
-def display_hand(hand, card_names, suite_names)
+def display_hand(hand)
   hand.each do | card |
-    puts "\t#{card_names[card[0]]} of #{suite_names[card[1]]}" 
+    puts "\t#{CARD_NAMES[card[0]]} of #{SUITE_NAMES[card[1]]}" 
   end
 end
 
@@ -77,7 +77,7 @@ begin
     puts "Invalid Input!  Lets play with one deck ... "
     deck_count =1
   end
-  deck = create_deck(deck_count,cards,suites)  # Create deck
+  deck = create_deck(deck_count)  # Create deck
 
   puts "Enter the amount you want to play with: "
   total_bet = gets.chomp.to_i
@@ -87,7 +87,7 @@ begin
   end
   # --------------- loop for each round
   loop do
-    system 'clear'
+    
     bust = false
     stay = false
     player_blackjack = false
@@ -106,7 +106,7 @@ begin
     player_hand = create_hand(deck)
     #Display Hand
     puts "Your hand is:" 
-    display_hand(player_hand, card_names, suite_names)
+    display_hand(player_hand)
     #Compute hand value
     player_hand_value = get_hand_value(player_hand)
     puts "Your hand value is:  #{player_hand_value}" 
@@ -131,14 +131,14 @@ begin
             system 'clear'
             player_hand << create_card(deck)
             puts "Your hand is:" 
-            display_hand(player_hand, card_names, suite_names)
+            display_hand(player_hand)
             player_hand_value = get_hand_value(player_hand)
             puts "Your hand value is:  #{player_hand_value}" 
             if player_hand_value > 21  #player loses
               total_bet -= bet_amount
               puts "\nYou have busted! Computer Wins!!"
               puts "\nComputer hand is:"
-              display_hand(computer_hand, card_names, suite_names)
+              display_hand(computer_hand)
               computer_hand_value = get_hand_value(computer_hand)
               puts "Computer hand value is:  #{computer_hand_value}"
 
@@ -157,7 +157,7 @@ begin
     if stay == true || player_blackjack == true
       computer_hand_value = get_hand_value(computer_hand)
       puts "\nComputer hand is:" 
-      display_hand(computer_hand, card_names, suite_names)
+      display_hand(computer_hand)
       computer_hand_value = get_hand_value(computer_hand)
       puts "Computer hand value is:  #{computer_hand_value}" 
       case 
@@ -167,7 +167,7 @@ begin
           while computer_hand_value < 17
             computer_hand << create_card(deck)
             puts "\nComputer hand is:" 
-            display_hand(computer_hand, card_names, suite_names)
+            display_hand(computer_hand)
             computer_hand_value = get_hand_value(computer_hand)
             puts "Computer hand value is:  #{computer_hand_value}" 
           end # End while
@@ -197,6 +197,7 @@ begin
       player_choice = gets.chomp.downcase
       break if player_choice!='y'      
     end
+  system 'clear'
   end # Round loop end
   puts "\nDo you want to play another game? (y/n)"
   player_choice = gets.chomp.downcase
