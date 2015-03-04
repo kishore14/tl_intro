@@ -166,6 +166,7 @@ begin
         when computer_hand_value < 17 && player_blackjack != true
           while computer_hand_value < 17
             computer_hand << create_card(deck)
+            sleep 0.5
             puts "\nComputer hand is:" 
             display_hand(computer_hand)
             computer_hand_value = get_hand_value(computer_hand)
@@ -201,6 +202,11 @@ begin
   end # Round loop end
   puts "\nDo you want to play another game? (y/n)"
   player_choice = gets.chomp.downcase
-  system 'clear' if player_choice =='y'
-end while total_bet>0 || player_choice=='y'
+  if player_choice =='y'
+    system 'clear'
+    game_exit = false
+  else
+    game_exit = true
+  end
+end while !game_exit
 puts "Thanks for playing! Good bye.... "
