@@ -1,0 +1,18 @@
+Note: I know the rules, so not writing them down
+-- what need to be done
+1) Ask for player name and store it
+2) Create a deck of cards
+3) Always give two cards to player
+4) Give an option menu to Hit or Stay (later may be for split, double)
+5) Find the sum of cards. If less than 21 keep  giving the options . if greater than 21 then player bust
+6) If 21, Make him the winner. Show the dealer cards. If dealer hits 21 then its a tie.
+7) Once, the player stays then check the sum of dealer cards. 
+    If 21, player loses
+    If <21 and >17 then compare player card total and declare the result. 
+    If <17, then always hit till the score is >17 or bust. then apply above condition and stop.
+8) Ask if the user wants to play again.
+
+Next step:
+9) Ask user how much he want to play with.
+10) for every game, keep how much player has and then if the player run out of much then ask for more :)
+    
