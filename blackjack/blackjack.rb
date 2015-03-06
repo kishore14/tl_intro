@@ -1,18 +1,9 @@
-#blackjack.rb
-#This is my second attempt at this. This doesnt have multideck and bet amount features.
-
+#blackjack.rb #Simplifying or refactoring ths code per suggestions.
 require 'pry'
 CARDS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'] #Actual cards
 SUITES = ['S', 'C', 'D', 'H'] 
-#Hash used to display names of SUITES instead of first letter
-SUITE_NAMES = {'S'=> 'Spades', 'C' => 'Clubs', 'D' => 'Diamonds', 'H' => 'Hearts'}
-#Hash used to display names of cards instead of first letter
-CARD_NAMES = {
-  'A' => 'Ace', '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' =>7, '8' => 8, '9' => 9,
-  '10' => 10, 'J' => 'Jack', 'Q' => 'Queen', 'K' => 'King'  
-  }
+SUITE_SYMBOLS = {'S' => "\u2660", 'C' => "\u2663", 'H' => "\u2665", 'D' => "\u2666"}
 
-# Method to create a deck with specfied number of card sets.
 def create_deck(number)
   deck = []
   deck_cards = []
@@ -21,36 +12,45 @@ def create_deck(number)
   end
   deck_cards.flatten!
   deck = deck_cards.product(SUITES)
+  deck.shuffle!
 end
 
 #Method to create a card
-def create_card(deck)
-  card = deck.shuffle.pop
+def deal_a_card(deck)
+  deck.pop
 end
 
 #Method to create a hand
-def create_hand(deck)
-  card_1 = create_card(deck)
-  card_2 = create_card(deck)
-   
-  hand = []
-  hand <<  card_1
-  hand << card_2
+def deal_first_hands(deck, player_cards, dealer_cards)
+  player_cards << deal_a_card(deck) << deal_a_card(deck)
+  dealer_cards << deal_a_card(deck) << deal_a_card(deck)
+  return player_cards, dealer_cards
 end
 
 # Method to display the hand
-def display_hand(hand)
-  hand.each do | card |
-    puts "\t#{CARD_NAMES[card[0]]} of #{SUITE_NAMES[card[1]]}" 
+def display_hands( player_hand, dealer_hand, state = {} )
+  system 'clear'
+  if state[:gameover]
+    puts "Dealer Cards: "
+    dealer_hand.each do | card |
+    print "   #{card[0]} #{SUITE_SYMBOLS[card[1].encode('utf-8')]}" 
+    end
+    puts"\nHand Value: " + get_hand_value(dealer_hand).to_s
+  else
+    puts "Dealer Cards :"
+    puts "   #{dealer_hand[0][0]} #{SUITE_SYMBOLS[dealer_hand[0][1].encode('utf-8')]}" + " and *" 
   end
+  puts "-" * 15
+  puts "Your Cards:"
+  player_hand.each do | card |
+  print "   #{card[0]} #{SUITE_SYMBOLS[card[1]].encode('utf-8')}" 
+  end  
+  puts"\nHand Value: " + get_hand_value(player_hand).to_s
 end
 
-# Method to compute value of hand
 def get_hand_value(hand)
   hand_values = hand.map { |card| card[0]} 
-  
   total = 0
-  #check if there are any Aces
   hand_values.each do |value|
     if value == 'A'
       total += 11
@@ -59,7 +59,7 @@ def get_hand_value(hand)
     else
       total += value.to_i
     end
-  end
+  end # end for do
   # To accomodate Aces, subtract 10 from the total per Ace if the total is >21
   hand_values.select{|value| value == "A"}.count.times do 
     total -= 10 if total >21
@@ -67,146 +67,163 @@ def get_hand_value(hand)
   total
 end
 
-#---Main loop
-begin 
-  #Display welcome message and initialize variables
+def initialize_game
   puts "Welcome to blackjack!!" 
   puts "How many deck's you want to play with?"
   deck_count = gets.chomp.to_i
-  if deck_count ==0 
+  if deck_count == 0 
     puts "Invalid Input!  Lets play with one deck ... "
     deck_count =1
   end
   deck = create_deck(deck_count)  # Create deck
+  begin
+    puts "Enter total bet amount: "
+    total_bet = gets.chomp.to_i
+    if total_bet <= 0  
+      puts "Invalid Input!  "
+    end
+  end until total_bet > 0
+  return  deck, total_bet
+end  
 
-  puts "Enter the amount you want to play with: "
-  total_bet = gets.chomp.to_i
-  if total_bet <=0 
-    puts "Invalid Input!  Lets play with $100 ... "
-    total_bet =100
-  end
-  # --------------- loop for each round
-  loop do
-    
-    bust = false
-    stay = false
-    player_blackjack = false
-
-    puts "Enter bet amount: "
+def player_play(player_hand, dealer_hand, deck, total_bet)
+  bust, stay, player_blackjack = false, false, false
+  bet_amount = 0
+  begin
+    puts "Enter bet: "
     bet_amount = gets.chomp.to_i
-    if bet_amount ==0 
-      puts "Invalid Input!  Lets play with $10 ... "
-      bet_amount =10
-     elsif bet_amount > total_bet
-      puts "Invalid Input!  Lets play with your full amount ...  $#{total_bet}"
-      bet_amount = total_bet
+    if bet_amount <= 0  
+      puts "Invalid Input!  "
     end
-
-    #Create players first hand
-    player_hand = create_hand(deck)
-    #Display Hand
-    puts "Your hand is:" 
-    display_hand(player_hand)
-    #Compute hand value
-    player_hand_value = get_hand_value(player_hand)
-    puts "Your hand value is:  #{player_hand_value}" 
-
-    #Create computer first hand
-    computer_hand = create_hand(deck)
-
-    if player_hand_value == 21  
-      puts "You Hit Blackjack!! "
-      player_blackjack = true
-    else
-      begin # Loop to manage player decisions
-        puts "\nDo you want to Hit or Stay (h/s)"
-        player_choice = gets.chomp.downcase
-        #Keep asking to choose h or s
-        if player_choice != 'h' && player_choice != 's'
-          puts "\nInvalid selection! Please enter 'h' to Hit or 's' to Stay !! "
-        end
-
-        case player_choice
-          when 'h' 
-            system 'clear'
-            player_hand << create_card(deck)
-            puts "Your hand is:" 
-            display_hand(player_hand)
-            player_hand_value = get_hand_value(player_hand)
-            puts "Your hand value is:  #{player_hand_value}" 
-            if player_hand_value > 21  #player loses
-              total_bet -= bet_amount
-              puts "\nYou have busted! Computer Wins!!"
-              puts "\nComputer hand is:"
-              display_hand(computer_hand)
-              computer_hand_value = get_hand_value(computer_hand)
-              puts "Computer hand value is:  #{computer_hand_value}"
-
-              bust = true
-            elsif player_hand_value == 21
-              puts "You Hit Blackjack!! "
-              player_blackjack = true
-              break            
-            end
-          when 's'
-            stay = true
-          end
-      end until bust || stay || player_blackjack
-    end
-
-    if stay == true || player_blackjack == true
-      computer_hand_value = get_hand_value(computer_hand)
-      puts "\nComputer hand is:" 
-      display_hand(computer_hand)
-      computer_hand_value = get_hand_value(computer_hand)
-      puts "Computer hand value is:  #{computer_hand_value}" 
-      case 
-        when computer_hand_value == 21 
-          puts "Computer Hit Blackjack!! "
-        when computer_hand_value < 17 && player_blackjack != true
-          while computer_hand_value < 17
-            computer_hand << create_card(deck)
-            sleep 0.5
-            puts "\nComputer hand is:" 
-            display_hand(computer_hand)
-            computer_hand_value = get_hand_value(computer_hand)
-            puts "Computer hand value is:  #{computer_hand_value}" 
-          end # End while
-      end  # End if
-      #Check for the winner and compute bet amounts
-      case 
-        when computer_hand_value > 21
-          puts "\nComputer is busted! You Win!!"
-          total_bet += bet_amount
-        when computer_hand_value > player_hand_value 
-          puts "\nComputer Wins!!"
-          total_bet -= bet_amount
-        when computer_hand_value < player_hand_value
-          puts "\nYou Win!!"
-          total_bet += bet_amount
-       else
-        puts "\nIts a push!!"
-      end
-    end
-  
-    if total_bet <=0
-      puts "Sorry you ran out of your balance."
-      break
-    else
-      puts "\nYour total remaining amount is :#{total_bet}"
-      puts "\nDo you want to play another round? (y/n)"
-      player_choice = gets.chomp.downcase
-      break if player_choice!='y'      
-    end
-  system 'clear'
-  end # Round loop end
-  puts "\nDo you want to play another game? (y/n)"
-  player_choice = gets.chomp.downcase
-  if player_choice =='y'
-    system 'clear'
-    game_exit = false
-  else
-    game_exit = true
+  end until bet_amount > 0
+  if bet_amount > total_bet
+    puts "Lets play with your full amount ...  $#{total_bet}"
+    bet_amount = total_bet
   end
-end while !game_exit
+  begin # Loop to manage player decisions
+    player_hand_value = get_hand_value(player_hand)
+    if player_hand_value == 21
+      player_blackjack = true
+      return stay, bust, player_blackjack, bet_amount
+    end
+    display_hands(player_hand, dealer_hand, gameover: false) 
+    puts "\nDo you want to Hit or Stay (h/s)"
+    player_choice = gets.chomp.downcase
+    if !['h', 's'].include?(player_choice)
+      puts "\nInvalid selection! Please enter 'h' to Hit or 's' to Stay !! "
+    end
+    case player_choice
+      when 'h' 
+        player_hand << deal_a_card(deck)
+        display_hands(player_hand, dealer_hand, gameover: false) 
+        player_hand_value = get_hand_value(player_hand)
+        if player_hand_value > 21  #player loses
+          total_bet -= bet_amount
+          winner = 'dealer'
+          display_winner(winner, player_hand, dealer_hand)
+          bust = true
+       elsif player_hand_value == 21
+         player_blackjack = true
+         break            
+       end
+     when 's'
+       stay = true
+     end
+  end until bust || stay || player_blackjack
+  return stay, bust, player_blackjack, bet_amount
+end
+
+def deal_to_dealer(deck, dealer_hand, player_hand)
+  display_hands(player_hand, dealer_hand, gameover: false) 
+  dealer_hand_value = get_hand_value(dealer_hand)
+  while dealer_hand_value < 17
+      dealer_hand << deal_a_card(deck)
+      sleep 0.5
+      dealer_hand_value = get_hand_value(dealer_hand)
+      display_hands(player_hand, dealer_hand, gameover: false) 
+  end # End while
+  dealer_hand
+end
+
+def dealer_play(stay, player_blackjack, player_hand, dealer_hand, deck)
+  player_blackjack= true
+    if stay || (player_blackjack && player_hand.count == 2  )
+      dealer_hand = deal_to_dealer(deck, dealer_hand, player_hand)
+      dealer_hand_value = get_hand_value(dealer_hand)
+    end # End if
+  dealer_hand
+end
+
+def winner?(player_hand, dealer_hand)
+   dealer_hand_value = get_hand_value(dealer_hand)
+   player_hand_value = get_hand_value(player_hand)
+  case
+    when player_hand_value > 21
+      return 'dealer'
+    when dealer_hand_value > 21
+      return 'player'
+    when dealer_hand_value > player_hand_value 
+      return 'dealer'
+    when dealer_hand_value < player_hand_value
+      return 'player'
+    else
+      return 'push'
+  end
+end
+
+def display_winner(winner, player_hand, dealer_hand)
+  display_hands(player_hand, dealer_hand, gameover: true) 
+  puts""
+  case winner
+    when 'dealer'
+      puts "***Dealer wins!!***"
+    when 'player' 
+      puts "***Player wins!!***"
+  else
+      puts "***Its a push!!***"
+  end
+  puts ""
+end
+
+def check_balance?(total_bet, bet_amount, winner)
+  case winner
+    when 'dealer'
+      total_bet -= bet_amount 
+    when 'player' 
+      total_bet += bet_amount
+  end
+  if total_bet <= 0
+      puts "Sorry you ran out of your balance."
+      nil_balance = true
+    else
+      nil_balance = false
+    end  
+  return total_bet, nil_balance
+end
+
+def play_again?
+  puts "Do you want to play again? (y/n)"
+  player_choice = gets.chomp.downcase
+  exit_game = player_choice !='y' ? true : false
+end
+
+#---Main loop
+begin 
+  system 'clear'
+  deck, total_bet = initialize_game
+  loop do
+    system 'clear'
+    player_hand, dealer_hand =  deal_first_hands(deck, [], [])
+    stay, bust, player_blackjack, bet_amount = player_play(player_hand, dealer_hand, deck, total_bet)
+    dealer_play(stay, player_blackjack, player_hand, dealer_hand, deck)
+    who_won = winner?(player_hand, dealer_hand)
+    display_winner(who_won, player_hand, dealer_hand)
+    total_bet, nil_balance = check_balance?(total_bet, bet_amount, who_won)
+    break if nil_balance
+    puts "Your total remaining amount is :#{total_bet}"
+    puts "Press any key to continue ... "
+    gets.chomp
+  end
+  exit_game = play_again?
+end while !exit_game
 puts "Thanks for playing! Good bye.... "
