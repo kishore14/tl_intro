@@ -22,8 +22,10 @@ end
 
 #Method to create a hand
 def deal_first_hands(deck, player_cards, dealer_cards)
-  player_cards << deal_a_card(deck) << deal_a_card(deck)
-  dealer_cards << deal_a_card(deck) << deal_a_card(deck)
+  2.times do
+   player_cards << deal_a_card(deck)
+   dealer_cards << deal_a_card(deck)
+  end
   return player_cards, dealer_cards
 end
 
